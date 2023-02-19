@@ -1,0 +1,5 @@
+## sfx sound expander / fm-yam library for cc65
+
+this is a very early, and very basic library for making sounds with the SFX Sound Expander cartridge or the FM-YAM cartridge.  Pull requests are welcome
+
+see sample.c for a quick demo
