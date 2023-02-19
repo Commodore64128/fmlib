@@ -7,9 +7,11 @@
     Scott Hutter / xlar54
 */
 
+// References:
 // https://c64.xentax.com/images/programming_the_adlib.txt
 // https://c64.xentax.com/index.php/15-testing-ym3812-register-write-timing
 // https://www.floodgap.com/retrobits/ckb/secret/sfx.html
+// https://github.com/DhrBaksteen/ArduinoOPL2/blob/master/indepth.md
 
 #define REG_SELECT  0xDF40
 #define DATA_WRITE  0xDF50
