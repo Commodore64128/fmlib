@@ -45,22 +45,18 @@ void play_chord() {
 int play_music() {
 
     char play_command[] = "G3e,G3e,A3e,G3e,C4e,B3h,G3e,G3e,A3e,G3e,D4e,C4h,G3e,G3e,G4e,E4e,C4e,B3e,A3h,F4e,F4e,E4e,C4e,D4e,C4w";
-    char play_command2[] = "G2,C2,D2";
-
     Note notes[MAX_NOTES];
-    Note notes2[MAX_NOTES];
-
+ 
     uint8_t i;
     int note_count;
-    int note_count2;
-
+ 
     uint32_t jiffystart;
     uint32_t jiffynow;
 
     fm_setchannelvol(1, 255);
     fm_setchannelvol(2, 255);
 
-    fm_setinstrument(PIANO);
+    fm_setinstrument(BRASS);
 
     for(i=0;i<8;i++)
         fm_channeloff(i);
