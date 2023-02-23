@@ -18,6 +18,7 @@
 #define REG_SELECT  0xDF40
 #define DATA_WRITE  0xDF50
 #define CHIP_STATUS 0xDF60
+#define JIFFYCLOCK ((*(uint8_t*) (0xa0)) * 0x10000) + ((*(uint8_t *) (0xa1)) * 0x100) + (*(uint8_t *) (0xa2))
 
 enum INSTRUMENT_TYPE {
 
@@ -26,6 +27,8 @@ enum INSTRUMENT_TYPE {
     BRASS
 
 } instrumentType;
+
+
 
 //   Channel        1   2   3   4   5   6   7   8   9
 //   Operator 1    00  01  02  08  09  0A  10  11  12
@@ -107,6 +110,10 @@ void fm_write(unsigned char reg, unsigned char value) {
 }
 
 void fm_setchannelvol(uint8_t channel, uint8_t volume) {
+
+    // allow 0-255 (silent to loud) instead
+    // of crazy 60-0
+    volume = 60 - ((volume * 60 + 127) / 255);
 
     //Bytes 40-55
     //Level Key Scaling / Total Level
@@ -248,6 +255,56 @@ void fm_playsound(uint8_t channel, uint8_t octave, uint8_t noteid) {
     fm_regwrite(0xb0 + channel_offsets[channel-1]);
     fm_datawrite(hi);
 }
+
+void fm_playfnum(uint8_t channel, uint16_t fnum) {
+    
+    uint8_t low = 0;
+    uint8_t hi = 0;
+   
+
+    // operator 1
+    fm_regwrite(0x20 + channel_offsets[channel-1]);
+    fm_datawrite(0x01);
+
+    // operator 2
+    fm_regwrite(0x20 + channel_offsets[channel-1] + 3);
+    fm_datawrite(0x01);
+
+
+    // Bytes A0-B8
+    // Octave / F-Number / Key-On
+    //
+    //    7     6     5     4     3     2     1     0
+    // +-----+-----+-----+-----+-----+-----+-----+-----+
+    // |        F-Number (least significant byte)      |  (A0-A8)
+    // |                                               |
+    // +-----+-----+-----+-----+-----+-----+-----+-----+
+
+    //    7     6     5     4     3     2     1     0
+    // +-----+-----+-----+-----+-----+-----+-----+-----+
+    // |  Unused   | Key |    Octave       | F-Number  |  (B0-B8)
+    // |           | On  |                 | most sig. |
+    // +-----+-----+-----+-----+-----+-----+-----+-----+
+
+    low = fnum & 0xff;
+    hi = 0x20 | (fnum>>8) & 0xff;
+
+    fm_regwrite(0xa0 + channel_offsets[channel-1]);
+    fm_datawrite(low);
+
+    //hi |= (1 << 3); // octave 2
+    //hi |= (1 << 5); // key on
+
+    fm_regwrite(0xb0 + channel_offsets[channel-1]);
+    fm_datawrite(hi);
+}
+
+void fm_channeloff(uint8_t channel) {
+
+    fm_regwrite(0xb0 + channel_offsets[channel-1]);
+    fm_datawrite(0);
+}
+
 
 void fm_setinstrument(enum INSTRUMENT_TYPE instrument) {
 
